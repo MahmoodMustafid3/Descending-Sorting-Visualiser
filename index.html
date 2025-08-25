@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorting Visualizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #ffffff;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: #0a4a6a;
+        }
+
+        .sorter {
+            min-height: 80vh;
+            min-width: 80vw;
+            display: flex;
+            justify-content: center;
+            background-color: #f9f9f9;
+            border-radius: 15px;
+            border: 2px solid #e0e0e0;
+            margin: 1rem;
+            position: relative;
+            padding: 20px;
+        }
+
+        .items {
+            margin: 5px;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        input#numInput {
+            width: 200px;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            padding: 10px 20px;
+            color: #fff;
+            font-size: 15px;
+            border-radius: 6px;
+            background: linear-gradient(45deg, #1e90ff, #20c997);
+            transition: 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        #arrayBox {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            margin: 10px;
+            position: absolute;
+            top: 80px;
+            width: 100%;
+        }
+
+        .element {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 5px;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+        }
+
+        .element.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .value {
+            background: #007bff;
+            color: #fff;
+            border-radius: 4px;
+            padding: 10px 15px;
+            min-width: 30px;
+            text-align: center;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        .index {
+            margin-top: 4px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .srth3 {
+            text-align: center;
+            color: teal;
+            font-weight: bold;
+            opacity: 0;
+            transition: 0.5s ease;
+            position: absolute;
+            top: 250px;
+            width: 100%;
+        }
+
+        .srth3v {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        #sortedBox {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            position: absolute;
+            top: 300px;
+            width: 100%;
+            gap: 15px;
+        }
+
+        .value.sortedVal {
+            background: linear-gradient(45deg, #20c997, #1e90ff);
+        }
+
+        .scnd {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            gap: 15px;
+        }
+
+        .highlight {
+            background: #ff6b6b !important;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Descending Sorting Visualizer</h2>
+    <div class="sorter">
+        <div class="fst">
+            <input class="items" id="numInput" type="text" placeholder="Enter Number">
+            <button class="items" id="add">Add</button>
+        </div>
+
+        <div id="arrayBox"></div>
+        <h3 class="srth3">Sorted Array</h3>
+        <div id="sortedBox"></div>
+
+        <div class="scnd">
+            <button id="Sort">Sort</button>
+            <button id="clear" style="background: linear-gradient(45deg, #ff416c, #ff4b2b);">Clear</button>
+        </div>
+    </div>
+
+    <script>
+        let numbers = [];
+
+        function renderArray(highlight1 = -1, highlight2 = -1) {
+            const box = document.getElementById("arrayBox");
+            box.innerHTML = "";
+
+            numbers.forEach((num, i) => {
+                const element = document.createElement("div");
+                element.classList.add("element");
+
+                const valDiv = document.createElement("div");
+                valDiv.classList.add("value");
+                valDiv.textContent = num;
+
+                if (i === highlight1 || i === highlight2) {
+                    valDiv.classList.add("highlight");
+                }
+
+                const idxDiv = document.createElement("div");
+                idxDiv.classList.add("index");
+                idxDiv.textContent = i;
+
+                element.appendChild(valDiv);
+                element.appendChild(idxDiv);
+                box.appendChild(element);
+
+                requestAnimationFrame(() => element.classList.add("show"));
+            });
+        }
+
+        document.getElementById("add").addEventListener("click", () => {
+            const input = document.getElementById("numInput");
+            const value = input.value.trim();
+            if (value === "" || isNaN(value)) {
+                input.value = "";
+                return;
+            }
+            numbers.push(Number(value));
+            input.value = "";
+            renderArray();
+        });
+
+        document.getElementById("clear").addEventListener("click", () => {
+            numbers = [];
+            document.getElementById("arrayBox").innerHTML = "";
+            document.getElementById("sortedBox").innerHTML = "";
+            document.querySelector(".srth3").classList.remove("srth3v");
+        });
+
+        document.getElementById("Sort").addEventListener("click", async () => {
+            if (numbers.length < 2) return;
+            document.querySelector(".srth3").classList.add("srth3v");
+            document.getElementById("sortedBox").innerHTML = "";
+
+            let arr = [...numbers];
+            let n = arr.length;
+
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n - i - 1; j++) {
+                    renderArray(j, j + 1);
+                    await new Promise(r => setTimeout(r, 300));
+
+                    // DESCENDING order comparison
+                    if (arr[j] < arr[j + 1]) {
+                        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+                        numbers = [...arr];
+                        renderArray(j, j + 1);
+                        await new Promise(r => setTimeout(r, 300));
+                    }
+                }
+                // place sorted number in result box
+                const sortedBox = document.getElementById("sortedBox");
+                const finalVal = document.createElement("div");
+                finalVal.className = "value sortedVal";
+                finalVal.textContent = arr[n - i - 1];
+                sortedBox.prepend(finalVal);
+            }
+        });
+    </script>
+</body>
+
+</html>
